@@ -2,7 +2,7 @@
 
 **[Try the live demo](https://clearpath-reviewos.vercel.app)**
 
-I built ClearPath ReviewOS for a 24-hour product engineering take-home. The prompt described a fictional financial company whose marketing team was getting slowed down by compliance reviews managed in spreadsheets and email.
+I built ClearPath ReviewOS for the 24 hour product engineering take-home. The prompt described a fictional financial company whose marketing team was getting slowed down by compliance reviews managed in spreadsheets and email.
 
 What stood out to me was how easy it would be to lose track of a review: which ads are waiting on someone, what needs to change, and which version actually got approved. I wanted to solve that first rather than try to build an entire automated compliance system in a day.
 
@@ -90,4 +90,4 @@ npm run build
 
 ## A note about the demo
 
-ClearPath Financial and the sample campaigns are fictional. This isn't a production compliance tool or legal advice, and it doesn't verify real lending terms. There's no login or role enforcement, so anyone with the link can change the demo data. Please don't enter real company, customer, or other sensitive information.
+There's no login or role enforcement, so anyone with the link can change the demo data. Please don't enter real company, customer, or other sensitive information.
