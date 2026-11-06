@@ -10,7 +10,7 @@
     "test": "vitest run",
     "seed": "tsx scripts/seed.ts",
     "db:schema": "tsx scripts/apply-schema.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test:db": "RUN_DB_TESTS=1 vitest run tests/workflow.integration.test.ts"
   },
   "dependencies": {

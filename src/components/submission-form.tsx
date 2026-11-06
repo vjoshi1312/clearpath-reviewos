@@ -65,8 +65,18 @@ export function SubmissionForm() {
     return { title, productType, channel, partnerName: channel === "affiliate" ? partnerName : null, copy };
   }
 
+  function clearError(...keys: string[]) {
+    setErrors((prev) => {
+      if (!keys.some((k) => prev[k])) return prev;
+      const next = { ...prev };
+      for (const k of keys) delete next[k];
+      return next;
+    });
+  }
+
   function onChannelChange(next: Channel | "") {
     setChannel(next);
+    clearError("channel", "partnerName");
     if (next !== "affiliate") setPartnerName(""); // hide and clear the partner field
   }
 
@@ -127,7 +137,10 @@ export function SubmissionForm() {
         <input
           id="title"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            clearError("title");
+          }}
           aria-invalid={!!err("title")}
           aria-describedby={err("title") ? "title-error" : undefined}
           className={fieldClass}
@@ -140,7 +153,10 @@ export function SubmissionForm() {
           <select
             id="productType"
             value={productType}
-            onChange={(e) => setProductType(e.target.value as ProductType | "")}
+            onChange={(e) => {
+              setProductType(e.target.value as ProductType | "");
+              clearError("productType");
+            }}
             aria-invalid={!!err("productType")}
             aria-describedby={err("productType") ? "productType-error" : undefined}
             className={fieldClass}
@@ -177,7 +193,10 @@ export function SubmissionForm() {
           <input
             id="partnerName"
             value={partnerName}
-            onChange={(e) => setPartnerName(e.target.value)}
+            onChange={(e) => {
+              setPartnerName(e.target.value);
+              clearError("partnerName");
+            }}
             aria-invalid={!!err("partnerName")}
             aria-describedby={err("partnerName") ? "partnerName-error" : undefined}
             className={fieldClass}
@@ -195,7 +214,10 @@ export function SubmissionForm() {
         <textarea
           id="copy"
           value={copy}
-          onChange={(e) => setCopy(e.target.value)}
+          onChange={(e) => {
+            setCopy(e.target.value);
+            clearError("copy");
+          }}
           rows={9}
           aria-invalid={!!err("copy")}
           aria-describedby={err("copy") ? "copy-error" : undefined}
