@@ -72,7 +72,9 @@ describe("parseCopy / parseNote", () => {
     expect(parseNote("x".repeat(1000)).ok).toBe(true);
     expect(parseNote("x".repeat(1001)).ok).toBe(false);
     const r = parseNote("no", "rationale");
-    expect(!r.ok && r.errors.rationale).toBeDefined();
+    expect(!r.ok && r.errors.rationale).toMatch(/^Rationale must be at least 10/);
+    const n = parseNote("no");
+    expect(!n.ok && n.errors.note).toMatch(/^Note must be at least 10/);
   });
 });
 

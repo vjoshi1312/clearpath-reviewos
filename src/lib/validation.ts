@@ -18,7 +18,7 @@ const trimmed = (label: string, min: number, max: number) =>
     .max(max, `${label} must be at most ${max} characters.`);
 
 export const copySchema = trimmed("Advertising copy", LIMITS.copy.min, LIMITS.copy.max);
-export const noteSchema = trimmed("Note", LIMITS.note.min, LIMITS.note.max);
+const noteSchemaFor = (label: string) => trimmed(label, LIMITS.note.min, LIMITS.note.max);
 
 const submissionBase = z.object({
   title: trimmed("Campaign title", LIMITS.title.min, LIMITS.title.max),
@@ -77,7 +77,8 @@ export function parseCopy(input: unknown): ParseResult<string> {
 }
 
 export function parseNote(input: unknown, field = "note"): ParseResult<string> {
-  const parsed = noteSchema.safeParse(input);
+  // The field name doubles as the label so errors read "Rationale must be..." vs "Note must be...".
+  const parsed = noteSchemaFor(field === "rationale" ? "Rationale" : "Note").safeParse(input);
   return parsed.success
     ? { ok: true, data: parsed.data }
     : { ok: false, errors: { [field]: parsed.error.issues[0].message } };
