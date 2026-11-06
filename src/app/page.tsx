@@ -1,22 +1,38 @@
-import { getSql } from "@/lib/db";
+import { SiteHeader } from "@/components/site-header";
+import { ReviewQueue } from "@/components/review-queue";
+import { LinkButton } from "@/components/ui/button";
+import { getQueue } from "@/lib/queries";
+import type { QueueRow } from "@/lib/types";
 
+// Always read fresh queue state; never cache demo mutations.
 export const dynamic = "force-dynamic";
 
-// Checkpoint A skeleton: proves the deployed app can reach the database.
-// Replaced by the Review Queue in Checkpoint B.
-export default async function Home() {
-  let dbStatus: string;
+export default async function QueuePage() {
+  let rows: QueueRow[] | null = null;
   try {
-    const rows = await getSql()`select count(*)::int as n from submissions`;
-    dbStatus = `Database connected. ${rows[0].n} submission(s) stored.`;
-  } catch {
-    dbStatus = "Database unavailable.";
+    rows = await getQueue();
+  } catch (err) {
+    console.error("Queue load failed:", err instanceof Error ? err.name : "Error");
   }
+
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">ClearPath ReviewOS</h1>
-      <p className="text-sm text-muted">Marketing compliance review</p>
-      <p className="mt-6 text-sm">{dbStatus}</p>
-    </main>
+    <>
+      <SiteHeader showNew />
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        {rows === null ? (
+          <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-6 py-8 text-center">
+            <h2 className="text-lg font-medium text-high">The review queue is unavailable</h2>
+            <p className="mt-1 text-sm text-muted">We couldn&apos;t reach the database. Your data is not affected. Try again in a moment.</p>
+            <div className="mt-4">
+              <LinkButton href="/" variant="secondary">
+                Retry
+              </LinkButton>
+            </div>
+          </div>
+        ) : (
+          <ReviewQueue rows={rows} nowIso={new Date().toISOString()} />
+        )}
+      </main>
+    </>
   );
 }
