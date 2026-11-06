@@ -59,7 +59,7 @@ function ErrorText({ id, message }: { id: string; message?: string }) {
   );
 }
 
-function RequestChangesDialog({ submissionId, open, onClose, onDone }: DialogProps) {
+function RequestChangesDialog({ submissionId, revisionId, open, onClose, onDone }: DialogProps) {
   const { run, pending } = useMutation();
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | undefined>();
@@ -73,7 +73,7 @@ function RequestChangesDialog({ submissionId, open, onClose, onDone }: DialogPro
       return;
     }
     setError(undefined);
-    const result = await run(() => requestChanges(submissionId, checked.data));
+    const result = await run(() => requestChanges(submissionId, revisionId, checked.data));
     if (!result) return;
     if (result.ok) {
       onDone("Changes requested. The marketer can now revise and resubmit.");
@@ -117,6 +117,7 @@ function RequestChangesDialog({ submissionId, open, onClose, onDone }: DialogPro
 
 function ApproveDialog({
   submissionId,
+  revisionId,
   open,
   onClose,
   onDone,
@@ -143,7 +144,7 @@ function ApproveDialog({
       }
     }
     setError(undefined);
-    const result = await run(() => approveSubmission(submissionId, text));
+    const result = await run(() => approveSubmission(submissionId, revisionId, text));
     if (!result) return;
     if (result.ok) {
       onDone("Approved. This version is now final and read-only.");
@@ -191,6 +192,8 @@ function ApproveDialog({
 
 type DialogProps = {
   submissionId: string;
+  /** The revision the reviewer is looking at; the server rejects the decision if it is no longer the latest. */
+  revisionId: string;
   open: boolean;
   onClose: () => void;
   onDone: (message: string) => void;
@@ -400,9 +403,10 @@ export function ReviewWorkspace({ detail }: { detail: SubmissionDetail }) {
         </ol>
       </section>
 
-      <RequestChangesDialog submissionId={detail.id} open={dialog === "changes"} onClose={() => setDialog(null)} onDone={done} />
+      <RequestChangesDialog submissionId={detail.id} revisionId={latest.id} open={dialog === "changes"} onClose={() => setDialog(null)} onDone={done} />
       <ApproveDialog
         submissionId={detail.id}
+        revisionId={latest.id}
         open={dialog === "approve"}
         onClose={() => setDialog(null)}
         onDone={done}

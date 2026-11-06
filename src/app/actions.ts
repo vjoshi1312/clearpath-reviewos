@@ -43,12 +43,13 @@ export async function createSubmission(input: unknown): Promise<ActionResult<{ i
   });
 }
 
-export async function requestChanges(submissionId: string, note: unknown): Promise<ActionResult> {
+export async function requestChanges(submissionId: string, expectedRevisionId: string, note: unknown): Promise<ActionResult> {
   if (!isUuid(submissionId)) return fail("not_found", "Submission not found.");
+  if (!isUuid(expectedRevisionId)) return fail("validation", "Invalid revision. Refresh the page and try again.");
   const parsed = parseNote(note, "note");
   if (!parsed.ok) return fail("validation", "Please fix the note.", parsed.errors);
   return run(async () => {
-    await requestChangesRecord(submissionId, parsed.data);
+    await requestChangesRecord(submissionId, parsed.data, expectedRevisionId);
     refresh(submissionId);
     return null;
   });
@@ -65,11 +66,12 @@ export async function resubmitRevision(submissionId: string, newCopy: unknown): 
   });
 }
 
-export async function approveSubmission(submissionId: string, rationale?: unknown): Promise<ActionResult> {
+export async function approveSubmission(submissionId: string, expectedRevisionId: string, rationale?: unknown): Promise<ActionResult> {
   if (!isUuid(submissionId)) return fail("not_found", "Submission not found.");
+  if (!isUuid(expectedRevisionId)) return fail("validation", "Invalid revision. Refresh the page and try again.");
   const text = typeof rationale === "string" ? rationale.trim() : "";
   return run(async () => {
-    await approveRecord(submissionId, text === "" ? null : text);
+    await approveRecord(submissionId, text === "" ? null : text, expectedRevisionId);
     refresh(submissionId);
     return null;
   });

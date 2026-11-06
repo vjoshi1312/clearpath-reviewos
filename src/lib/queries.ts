@@ -209,11 +209,17 @@ export async function createSubmissionRecord(input: SubmissionInput): Promise<st
 }
 
 /** needs_review -> changes_requested. The event points at the revision that was reviewed. */
-export async function requestChangesRecord(submissionId: string, note: string): Promise<void> {
+export async function requestChangesRecord(submissionId: string, note: string, expectedRevisionId: string): Promise<void> {
   await getSql().begin(async (tx) => {
     const s = await lockSubmission(tx, submissionId);
     if (!canTransition(s.status, "request_changes")) throw conflict(s.status, "request_changes");
     const rev = await latestRevision(tx, s.id);
+    if (rev.id !== expectedRevisionId) {
+      throw new AppError(
+        "conflict",
+        "A newer version was submitted since you opened this page. Refresh to review the latest version before deciding.",
+      );
+    }
     const { to, event } = transitionTarget("request_changes");
     await tx`
       insert into review_events (submission_id, revision_id, event_type, actor_role, note)
@@ -252,11 +258,17 @@ export async function resubmitRecord(submissionId: string, copy: string): Promis
  * needs_review -> approved. If the revision being approved has any high-severity finding,
  * a rationale (10-1,000 chars) is mandatory. `rationale` is the trimmed text or null.
  */
-export async function approveRecord(submissionId: string, rationale: string | null): Promise<void> {
+export async function approveRecord(submissionId: string, rationale: string | null, expectedRevisionId: string): Promise<void> {
   await getSql().begin(async (tx) => {
     const s = await lockSubmission(tx, submissionId);
     if (!canTransition(s.status, "approve")) throw conflict(s.status, "approve");
     const rev = await latestRevision(tx, s.id);
+    if (rev.id !== expectedRevisionId) {
+      throw new AppError(
+        "conflict",
+        "A newer version was submitted since you opened this page. Refresh to review the latest version before deciding.",
+      );
+    }
     const needsRationale = approvalRequiresRationale(asFindings(rev.findings));
     if (needsRationale && !rationale) {
       throw new AppError(
