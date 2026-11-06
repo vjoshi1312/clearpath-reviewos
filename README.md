@@ -56,7 +56,7 @@ On the database side, I used three tables: `submissions`, `revisions`, and `revi
 
 ## What I'd do next
 
-I'd want to put this in front of actual compliance reviewers before adding much more. I'd look at how long reviews take, how many rounds of revisions campaigns go through, and where the process still gets stuck. If the workflow helped, I'd look at expanding the checks, potentially with AI for more context-sensitive issues. I haven't measured any throughput improvement from this demo.
+I'd want to put this in front of actual compliance reviewers before adding much more. I'd look at how long reviews take, how many rounds of revisions campaigns go through, and where the process still gets stuck. If the workflow helped, I'd look at expanding the checks, potentially with AI for more context-sensitive issues. 
 
 ## Running it locally
 
